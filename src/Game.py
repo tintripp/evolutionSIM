@@ -17,8 +17,14 @@ class Game:
         pygame.init()
         pygame.display.init()
 
+        #COOL
+        self.waterlevel=110
+        self.camzoom=1
+        self.camx=0
+        self.camy=0
+
         #generate world
-        self.world = util.make_noise_map(WINDOW_WIDTH, WINDOW_HEIGHT, int(time.time()*1000))
+        self.world = util.make_noise_map(WINDOW_WIDTH, WINDOW_HEIGHT, 123)
 
         #this looks weird here, but i MUST import AFTER calling set_mode
         from Animal import Animal
@@ -36,21 +42,40 @@ class Game:
         for event in pygame.event.get():
             if event.type==pygame.QUIT:
                 self.done =True
+            elif event.type == pygame.MOUSEWHEEL:
+                self.camzoom+=event.y/100
+                self.camx=-self.camzoom*100
     def update(self, dt):
-        pass
+        keys = pygame.key.get_pressed()
+        if (keys[pygame.K_w]): self.waterlevel+=1
+        if (keys[pygame.K_s]): self.waterlevel-=1
     def draw(self):
+        self.screen.fill(0)
+        print(self.camx,self.camy)
         for x in range(len(self.world)):
             for y in range(len(self.world[x])):
                 z = self.world[x][y]
 
-                """color = (30+z,0+z,255)
-                if z>110:
-                    color = (111,111,0)"""
-                self.screen.set_at((x,y), (z,)*3)#color)
+                color = (30+(z-30),30+(z-30),200)#water
+                if z>self.waterlevel:
+                    color = (0,120+(z-120),0)#land
+
+                color=tuple(c%255 for c in color)
+
+                
+                #self.screen.set_at((y,x), color)
+                pygame.draw.rect(self.screen,color,pygame.Rect(
+                    (y*self.camzoom)+self.camx,(x*self.camzoom)+self.camy,self.camzoom,self.camzoom
+                ))
+
             
 
         for a in self.animals:
             a.draw(self.screen)
+
+        font = pygame.font.SysFont("notomono", 24)
+        fps_text = font.render(f"FPS: {int(self.clock.get_fps())}", True, (255, 255, 255)) # White text
+        self.screen.blit(fps_text, (10, 10)) # Display at top-left corner
 
         self.window.blit(
             pygame.transform.scale(self.screen,pygame.display.get_surface().get_size())

@@ -34,10 +34,9 @@ def hue_shift_img(image,deg):
     return modified_image
 
 def make_noise_map(width,height,seed):
-    noisemap=[]
-    for x in range(width):
-        row = []
+    noisemap=[[0 for _ in range(width)] for _ in range(height)]
 
+    for x in range(width):
         for y in range(height):
             z = noise.pnoise2(
                 x * NOISE_SCALE, 
@@ -47,13 +46,10 @@ def make_noise_map(width,height,seed):
                 lacunarity= NOISE_LACUNARITY, 
                 repeatx= WINDOW_WIDTH, 
                 repeaty= WINDOW_HEIGHT, 
-                base=2
+                base=seed
             )
-            print(z)
             
-            z = int((z+1)*255)
+            z = min(int((z+(1/2))*255)-1, 254)
             
-            row.append(z)
-
-        noisemap.append(row)
+            noisemap[y][x]=z
     return noisemap
