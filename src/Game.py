@@ -1,8 +1,7 @@
 import pygame
 import random
 from constants import *
-import util
-import time
+from World import World
 
 class Game:
     def __init__(self):
@@ -17,14 +16,8 @@ class Game:
         pygame.init()
         pygame.display.init()
 
-        #COOL
-        self.waterlevel=110
-        self.camzoom=1
-        self.camx=0
-        self.camy=0
-
         #generate world
-        self.world = util.make_noise_map(WINDOW_WIDTH, WINDOW_HEIGHT, 123)
+        self.world = World(123)
 
         #this looks weird here, but i MUST import AFTER calling set_mode
         from Animal import Animal
@@ -45,30 +38,13 @@ class Game:
             elif event.type == pygame.MOUSEWHEEL:
                 self.camzoom+=event.y/100
                 self.camx=-self.camzoom*100
+            self.world.update(event)
     def update(self, dt):
-        keys = pygame.key.get_pressed()
-        if (keys[pygame.K_w]): self.waterlevel+=1
-        if (keys[pygame.K_s]): self.waterlevel-=1
+        self.world.update(dt)
     def draw(self):
         self.screen.fill(0)
-        print(self.camx,self.camy)
-        for x in range(len(self.world)):
-            for y in range(len(self.world[x])):
-                z = self.world[x][y]
 
-                color = (30+(z-30),30+(z-30),200)#water
-                if z>self.waterlevel:
-                    color = (0,120+(z-120),0)#land
-
-                color=tuple(c%255 for c in color)
-
-                
-                #self.screen.set_at((y,x), color)
-                pygame.draw.rect(self.screen,color,pygame.Rect(
-                    (y*self.camzoom)+self.camx,(x*self.camzoom)+self.camy,self.camzoom,self.camzoom
-                ))
-
-            
+        self.world.draw(self.screen)
 
         for a in self.animals:
             a.draw(self.screen)
