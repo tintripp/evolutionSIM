@@ -1,7 +1,8 @@
 import pygame
 from constants import *
 
-from os import path
+import json
+import os
 
 def clamp(value,minmax):
     return min(max(value,minmax[0]),minmax[1])
@@ -48,5 +49,14 @@ def indices_higher_than(arr,thres):
 
     return indices
 
-def get_path(*args):
-    return path.join(path.dirname(path.dirname(path.abspath(__file__))), *args)
+def path(*args):
+    return os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), *args)
+
+def read_json(path):
+    data = {}
+    try:
+        with open(path, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+    except Exception as e:
+        print(f"Error: {e}")
+    return data

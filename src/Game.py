@@ -1,5 +1,4 @@
 import pygame
-import util
 from constants import *
 from World import World
 
@@ -19,8 +18,6 @@ class Game:
         #generate world
         self.world = World(MAP_WIDTH, MAP_HEIGHT)
 
-        print()
-
         #this looks weird here, but i MUST import AFTER calling set_mode
         from Animal import create_animals
 
@@ -31,9 +28,23 @@ class Game:
         for event in pygame.event.get():
             if event.type==pygame.QUIT:
                 self.done =True
+
+            if(event.type==pygame.KEYDOWN): 
+                if(event.key==pygame.K_UP):
+                    self.animals[0].anim_name="up"
+                if(event.key==pygame.K_DOWN):
+                    self.animals[0].anim_name="down"
+                if(event.key==pygame.K_LEFT):
+                    self.animals[0].anim_name="left"
+                if(event.key==pygame.K_RIGHT):
+                    self.animals[0].anim_name="right"
+                print(self.animals[0].x,self.animals[0].y,self.animals[0].anim_name)
             self.world.handle_event(event)
     def update(self, dt):
         self.world.update(dt)
+        for animal in self.animals:
+            animal.update(dt)
+        
     def draw(self):
         self.screen.fill(0)
 
