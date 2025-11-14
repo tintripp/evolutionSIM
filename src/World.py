@@ -75,7 +75,7 @@ class World:
 
 
         #camera
-        self.camera=  WorldCamera()
+        self.cam=  WorldCamera()
 
     def _make_heightmap(self,width,height,seed):
         noisemap= numpy.empty((width,height))
@@ -114,7 +114,7 @@ class World:
         rgb[mask_sand] = (255, 234, 163)
 
         #land
-        mask_land = self.heights > (self.waterlevel + 7)
+        mask_land = self.heights > (self.waterlevel + TERRAIN_GRASS_HEIGHT)
         rgb[mask_land, 0] = 0
         rgb[mask_land, 1] = 120 + (self.heights[mask_land] - 120)
         rgb[mask_land, 2] = 0
@@ -122,7 +122,7 @@ class World:
         return rgb
     
     def handle_event(self, event):
-        self.camera.handle_event(event)
+        self.cam.handle_event(event)
 
     def update(self, dt):
         #testing
@@ -130,12 +130,12 @@ class World:
         if (keys[pygame.K_w]): self.waterlevel+=1
         if (keys[pygame.K_s]): self.waterlevel-=1
 
-        self.camera.update(dt)
+        self.cam.update(dt)
 
     def draw(self, screen):
         pygame.surfarray.blit_array(self.surface, self._get_colormap())
     
         screen.blit(
-            pygame.transform.scale_by(self.surface,self.camera.zoom), 
-            (self.camera.x,self.camera.y)
+            pygame.transform.scale_by(self.surface,self.cam.zoom), 
+            (self.cam.x,self.cam.y)
         )

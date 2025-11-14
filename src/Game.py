@@ -1,5 +1,4 @@
 import pygame
-import random
 from constants import *
 from World import World
 
@@ -9,7 +8,7 @@ class Game:
         self.done = False
         self.clock = pygame.time.Clock()
 
-        self.MAP = pygame.display.set_mode(
+        self.window = pygame.display.set_mode(
             (MAP_WIDTH*WINDOW_INIT_SCALE, MAP_HEIGHT*WINDOW_INIT_SCALE), pygame.RESIZABLE
         )
         self.screen = pygame.Surface((MAP_WIDTH, MAP_HEIGHT))
@@ -20,17 +19,10 @@ class Game:
         self.world = World(MAP_WIDTH, MAP_HEIGHT)
 
         #this looks weird here, but i MUST import AFTER calling set_mode
-        from Animal import Animal
-        self.animals = []
+        from Animal import create_animals
+        self.animals = create_animals(8,64)
 
-        #create the first animals
-        for i in range(random.randint(2,9)):
-            self.animals.append(
-                Animal(
-                    random.randint(0, MAP_WIDTH-Animal.img.get_width()),
-                    random.randint(0, MAP_HEIGHT-Animal.img.get_height())
-                )
-            )
+
     def handle_events(self):
         for event in pygame.event.get():
             if event.type==pygame.QUIT:
@@ -43,14 +35,14 @@ class Game:
 
         self.world.draw(self.screen)
 
-        for a in self.animals:
-            a.draw(self.screen)
+        for animal in self.animals:
+            animal.draw(self.screen, self.world.cam)
 
         font = pygame.font.SysFont("notomono", 24)
         fps_text = font.render(f"FPS: {int(self.clock.get_fps())}", True, (255, 255, 255)) # White text
         self.screen.blit(fps_text, (10, 10)) # Display at top-left corner
 
-        self.MAP.blit(
+        self.window.blit(
             pygame.transform.scale(self.screen,pygame.display.get_surface().get_size())
         )
     def loop(self):
