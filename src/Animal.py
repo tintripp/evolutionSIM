@@ -25,14 +25,18 @@ class Animal:
         ))
 
 
-def create_animals(min,max):
+def create_animals(world,min,max):
     #create the first animals
     animals=[]
+
+    spawn_areas = util.indices_higher_than(world.heights, world.waterlevel + (TERRAIN_GRASS_HEIGHT*2))
+
+
     for i in range(random.randint(min,max)):
+        spawn_area = spawn_areas[random.randint(min,len(spawn_areas)-1)]
         animals.append(
             Animal(
-                random.randint(0, (MAP_WIDTH*MAP_MAX_SCALE)),
-                random.randint(0, (MAP_HEIGHT*MAP_MAX_SCALE))
+                spawn_area[0]*MAP_MAX_SCALE, spawn_area[1]*MAP_MAX_SCALE
             )
         )
     return animals

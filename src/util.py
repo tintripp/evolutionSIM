@@ -36,9 +36,12 @@ def hue_shift_img(image,deg):
 
     return modified_image
 
-def indexes_higher_than(arr,thres):
+def indices_higher_than(arr,thres):
     indices=[]
 
-    for x in arr:
-        for y in arr[x]:
-            if arr[x][y]>th
+    for i in range(arr.shape[0]): 
+        for j in range(arr.shape[1]): 
+            if arr[i, j]>thres:
+                indices.append((i,j))
+
+    return indices

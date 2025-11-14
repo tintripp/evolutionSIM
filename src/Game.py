@@ -1,4 +1,5 @@
 import pygame
+import util
 from constants import *
 from World import World
 
@@ -18,9 +19,12 @@ class Game:
         #generate world
         self.world = World(MAP_WIDTH, MAP_HEIGHT)
 
+        print()
+
         #this looks weird here, but i MUST import AFTER calling set_mode
         from Animal import create_animals
-        self.animals = create_animals(8,64)
+
+        self.animals = create_animals(self.world, 8, 16)
 
 
     def handle_events(self):

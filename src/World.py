@@ -68,7 +68,7 @@ class World:
         self.heights = self._make_heightmap(width, height, seed)
 
         #COOL
-        self.waterlevel=110
+        self.waterlevel=160
 
         #the surface that we draw! YAY!!!
         self.surface = pygame.Surface((width, height))
