@@ -91,7 +91,7 @@ class World:
         mouse_x/=win_w/WINDOW_WIDTH
         mouse_y/=win_h/WINDOW_HEIGHT
 
-        #get mouse relative to zoom
+        #get where mouse is on our og surface
         cursor_rel_x = (mouse_x - self.camx) / self.camzoom
         cursor_rel_y = (mouse_y - self.camy) / self.camzoom
 
@@ -100,14 +100,14 @@ class World:
         self.camzoom=util.clamp(self.camzoom,(1,5))
         self.scrollvel*=0.8
 
-        #set cam position to difference from zoom
+        #move to keep world under mouse centered
         self.camx = mouse_x - cursor_rel_x * self.camzoom
         self.camy = mouse_y - cursor_rel_y * self.camzoom
+
+        #clamp
         if(-self.camx<0): self.camx=0
         if(-self.camy<0): self.camy=0
-
-        #prevent right bounds
-        if((self.camx+WINDOW_WIDTH)*self.camzoom<WINDOW_WIDTH):
+        if((self.camx+WINDOW_WIDTH)*self.camzoom<WINDOW_WIDTH): #fix
             print('rightmost')
 
     def draw(self, screen):
