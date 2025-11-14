@@ -1,6 +1,9 @@
 import pygame
 from constants import *
-import noise
+
+def clamp(value,minmax):
+    return min(max(value,minmax[0]),minmax[1])
+
 def hue_shift_img(image,deg):
     # Create a copy of the image to modify
     modified_image = image.copy()
@@ -32,24 +35,3 @@ def hue_shift_img(image,deg):
     del pixel_array
 
     return modified_image
-
-def make_noise_map(width,height,seed):
-    noisemap=[[0 for _ in range(width)] for _ in range(height)]
-
-    for x in range(width):
-        for y in range(height):
-            z = noise.pnoise2(
-                x * NOISE_SCALE, 
-                y * NOISE_SCALE, 
-                octaves= NOISE_OCTAVES, 
-                persistence= NOISE_PERSISTENCE, 
-                lacunarity= NOISE_LACUNARITY, 
-                repeatx= WINDOW_WIDTH, 
-                repeaty= WINDOW_HEIGHT, 
-                base=seed
-            )
-            
-            z = min(int((z+(1/2))*255)-1, 254)
-            
-            noisemap[y][x]=z
-    return noisemap

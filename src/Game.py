@@ -1,5 +1,6 @@
 import pygame
 import random
+import time
 from constants import *
 from World import World
 
@@ -17,7 +18,7 @@ class Game:
         pygame.display.init()
 
         #generate world
-        self.world = World(123)
+        self.world = World(WINDOW_WIDTH, WINDOW_HEIGHT, time.time())
 
         #this looks weird here, but i MUST import AFTER calling set_mode
         from Animal import Animal
@@ -35,10 +36,7 @@ class Game:
         for event in pygame.event.get():
             if event.type==pygame.QUIT:
                 self.done =True
-            elif event.type == pygame.MOUSEWHEEL:
-                self.camzoom+=event.y/100
-                self.camx=-self.camzoom*100
-            self.world.update(event)
+            self.world.handle_event(event)
     def update(self, dt):
         self.world.update(dt)
     def draw(self):
