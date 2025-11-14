@@ -35,3 +35,10 @@ def hue_shift_img(image,deg):
     del pixel_array
 
     return modified_image
+
+def indexes_higher_than(arr,thres):
+    indices=[]
+
+    for x in arr:
+        for y in arr[x]:
+            if arr[x][y]>th

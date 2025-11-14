@@ -31,8 +31,8 @@ def create_animals(min,max):
     for i in range(random.randint(min,max)):
         animals.append(
             Animal(
-                random.randint(0, (MAP_WIDTH*MAP_MAX_SCALE)-Animal.img.get_width()),
-                random.randint(0, (MAP_HEIGHT*MAP_MAX_SCALE)-Animal.img.get_height())
+                random.randint(0, (MAP_WIDTH*MAP_MAX_SCALE)),
+                random.randint(0, (MAP_HEIGHT*MAP_MAX_SCALE))
             )
         )
     return animals
