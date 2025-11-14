@@ -1,6 +1,8 @@
 import pygame
 from constants import *
 
+from os import path
+
 def clamp(value,minmax):
     return min(max(value,minmax[0]),minmax[1])
 
@@ -45,3 +47,6 @@ def indices_higher_than(arr,thres):
                 indices.append((i,j))
 
     return indices
+
+def get_path(*args):
+    return path.join(path.dirname(path.dirname(path.abspath(__file__))), *args)

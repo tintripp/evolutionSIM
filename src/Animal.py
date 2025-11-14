@@ -1,12 +1,11 @@
 import pygame
-import os
+import json
 import util
 import random
 from constants import *
 class Animal:
-    img = pygame.image.load(
-        os.path.dirname(os.path.dirname(os.path.abspath(__file__)))+"/resources/banjohd.png"
-    ).convert_alpha() 
+    img = pygame.image.load(util.get_path("resources", "banjo.png")).convert_alpha() 
+    dat = json.load
 
     def __init__(self,x,y,parents=[]):
         self.x=x
