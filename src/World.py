@@ -72,7 +72,7 @@ class World:
 
         #the surface that we draw! YAY!!!
         self.surface = pygame.Surface((width, height))
-
+        self.needs_refresh=True
 
         #camera
         self.cam=  WorldCamera()
@@ -126,16 +126,30 @@ class World:
 
     def update(self, dt):
         #testing
+        oldwaterlevel=self.waterlevel
         keys = pygame.key.get_pressed()
         if (keys[pygame.K_w]): self.waterlevel+=1
         if (keys[pygame.K_s]): self.waterlevel-=1
+        if(oldwaterlevel!=self.waterlevel):self.needs_refresh=True
 
         self.cam.update(dt)
 
     def draw(self, screen):
-        pygame.surfarray.blit_array(self.surface, self._get_colormap())
+        if (self.needs_refresh):
+            pygame.surfarray.blit_array(self.surface, self._get_colormap())
+            self.needs_refresh=False
+
+        #only scale visible portion, scale it to size of screen
+
+        #get visible portion
+        visible = self.surface.subsurface(pygame.Rect(
+            -self.cam.x / self.cam.zoom,
+            -self.cam.y / self.cam.zoom,
+            screen.get_width() / self.cam.zoom,
+            screen.get_height() / self.cam.zoom,
+        ))
     
         screen.blit(
-            pygame.transform.scale_by(self.surface,self.cam.zoom), 
-            (self.cam.x,self.cam.y)
+            pygame.transform.scale(visible,screen.get_size()), 
+            ((self.cam.x%self.cam.zoom),(self.cam.y%self.cam.zoom))
         )

@@ -62,7 +62,7 @@ class Game:
         )
     def loop(self):
         while not self.done:
-            dt = self.clock.tick(60)
+            dt = self.clock.tick(FPS)
 
             self.handle_events()
             self.update(dt)
