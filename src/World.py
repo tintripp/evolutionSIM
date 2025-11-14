@@ -4,6 +4,56 @@ import util
 import noise
 import numpy
 
+class WorldCamera:
+    def __init__(self, x=0, y=0, zoom=1):
+        self.zoom=zoom
+        self.x=x
+        self.y=y
+        self.scrollvel=0
+
+    def _clamp_position(self, min_x, min_y, max_x, max_y):
+        if(-self.x < min_x): 
+            self.x = min_x
+        if(-self.y < min_y): 
+            self.y = min_y
+        if(((-self.x+max_x)/self.zoom)>max_x):
+            self.x=max_x-(max_x*self.zoom)
+        if(((-self.y+max_y)/self.zoom)>max_y):
+            self.y=max_y-(max_y*self.zoom)
+    
+    def handle_event(self, event):
+        if event.type == pygame.MOUSEWHEEL:
+            self.scrollvel+=event.y/50
+
+    def update(self, dt):
+        mouse_x, mouse_y = pygame.mouse.get_pos()
+        win_w,win_h = pygame.display.get_surface().get_size()
+        win_relw,win_relh=(win_w/WINDOW_WIDTH,win_h/WINDOW_HEIGHT)
+
+        mouse_x/=win_relw
+        mouse_y/=win_relh
+
+        #get where mouse is on our og surface
+        cursor_rel_x = (mouse_x - self.x) / self.zoom
+        cursor_rel_y = (mouse_y - self.y) / self.zoom
+
+        #apply zoom
+        self.zoom+=self.scrollvel
+        self.zoom=util.clamp(self.zoom,(1,5))
+        self.scrollvel*=0.9
+
+        #move to keep world under mouse centered
+        self.x = mouse_x - cursor_rel_x * self.zoom
+        self.y = mouse_y - cursor_rel_y * self.zoom
+
+        #pan camera with middle mouse button
+        relx,rely=pygame.mouse.get_rel()
+        if (pygame.mouse.get_pressed()[2]):
+            self.x+=relx/win_relw
+            self.y+=rely/win_relh
+
+        self._clamp_position(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT)
+
 class World:
     def __init__(self, width, height ,seed):
         self.width=width
@@ -24,11 +74,7 @@ class World:
         self.waterlevel=110
 
         #camera
-        self.camzoom=1
-        self.camx=0
-        self.camy=0
-        self.scrollvel=0
-        
+        self.camera=  WorldCamera()
 
     def _make_heightmap(self,width,height,seed):
         noisemap= numpy.empty((width,height))
@@ -57,16 +103,16 @@ class World:
     def _get_colormap(self):
         rgb = numpy.empty((self.width, self.height, 3), dtype=numpy.uint8)
 
-        # Base water color
+        #water
         rgb[..., 0] = 30 + (self.heights - 30)
         rgb[..., 1] = 30 + (self.heights - 30)
         rgb[..., 2] = 200
 
-        # Sand
+        #sand
         mask_sand = self.heights > self.waterlevel
         rgb[mask_sand] = (255, 234, 163)
 
-        # Land
+        #land
         mask_land = self.heights > (self.waterlevel + 7)
         rgb[mask_land, 0] = 0
         rgb[mask_land, 1] = 120 + (self.heights[mask_land] - 120)
@@ -75,8 +121,7 @@ class World:
         return rgb
     
     def handle_event(self, event):
-        if event.type == pygame.MOUSEWHEEL:
-            self.scrollvel+=event.y/50
+        self.camera.handle_event(event)
 
     def update(self, dt):
         #testing
@@ -84,36 +129,12 @@ class World:
         if (keys[pygame.K_w]): self.waterlevel+=1
         if (keys[pygame.K_s]): self.waterlevel-=1
 
-        # camera 
-        mouse_x, mouse_y = pygame.mouse.get_pos()
-        win_w,win_h = pygame.display.get_surface().get_size()
-
-        mouse_x/=win_w/WINDOW_WIDTH
-        mouse_y/=win_h/WINDOW_HEIGHT
-
-        #get where mouse is on our og surface
-        cursor_rel_x = (mouse_x - self.camx) / self.camzoom
-        cursor_rel_y = (mouse_y - self.camy) / self.camzoom
-
-        #apply zoom
-        self.camzoom+=self.scrollvel
-        self.camzoom=util.clamp(self.camzoom,(1,5))
-        self.scrollvel*=0.8
-
-        #move to keep world under mouse centered
-        self.camx = mouse_x - cursor_rel_x * self.camzoom
-        self.camy = mouse_y - cursor_rel_y * self.camzoom
-
-        #clamp
-        if(-self.camx<0): self.camx=0
-        if(-self.camy<0): self.camy=0
-        if((self.camx+WINDOW_WIDTH)*self.camzoom<WINDOW_WIDTH): #fix
-            print('rightmost')
+        self.camera.update(dt)
 
     def draw(self, screen):
         pygame.surfarray.blit_array(self.surface, self._get_colormap())
     
         screen.blit(
-            pygame.transform.scale_by(self.surface,self.camzoom), 
-            (self.camx,self.camy)
+            pygame.transform.scale_by(self.surface,self.camera.zoom), 
+            (self.camera.x,self.camera.y)
         )
