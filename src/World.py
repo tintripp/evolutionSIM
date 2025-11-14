@@ -2,6 +2,7 @@ import pygame
 from constants import *
 import util
 import noise
+import time
 import numpy
 
 class WorldCamera:
@@ -28,7 +29,7 @@ class WorldCamera:
     def update(self, dt):
         mouse_x, mouse_y = pygame.mouse.get_pos()
         win_w,win_h = pygame.display.get_surface().get_size()
-        win_relw,win_relh=(win_w/WINDOW_WIDTH,win_h/WINDOW_HEIGHT)
+        win_relw,win_relh=(win_w/MAP_WIDTH,win_h/MAP_HEIGHT)
 
         mouse_x/=win_relw
         mouse_y/=win_relh
@@ -39,8 +40,10 @@ class WorldCamera:
 
         #apply zoom
         self.zoom+=self.scrollvel
-        self.zoom=util.clamp(self.zoom,(1,5))
+        self.zoom=util.clamp(self.zoom,(MAP_MIN_SCALE,MAP_MAX_SCALE))
         self.scrollvel*=0.9
+
+        #print(round(self.zoom,2))
 
         #move to keep world under mouse centered
         self.x = mouse_x - cursor_rel_x * self.zoom
@@ -52,26 +55,24 @@ class WorldCamera:
             self.x+=relx/win_relw
             self.y+=rely/win_relh
 
-        self._clamp_position(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT)
+        self._clamp_position(0, 0, MAP_WIDTH, MAP_HEIGHT)
 
 class World:
-    def __init__(self, width, height ,seed):
+    def __init__(self, width, height ,seed=None):
         self.width=width
         self.height=height
+        if(not seed):seed=time.time()
         self.seed=seed
 
         #numpy array
         self.heights = self._make_heightmap(width, height, seed)
 
+        #COOL
+        self.waterlevel=110
+
         #the surface that we draw! YAY!!!
         self.surface = pygame.Surface((width, height))
 
-        # Later, update it quickly from a NumPy array
-        #pygame.surfarray.blit_array(self.surface, rgb_array)
-
-
-        #COOL
-        self.waterlevel=110
 
         #camera
         self.camera=  WorldCamera()
