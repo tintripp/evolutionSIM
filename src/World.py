@@ -41,7 +41,7 @@ class WorldCamera:
         #apply zoom
         self.zoom+=self.scrollvel
         self.zoom=util.clamp(self.zoom,(MAP_MIN_SCALE,MAP_MAX_SCALE))
-        self.scrollvel*=0.9
+        self.scrollvel*=0.95
 
         #print(round(self.zoom,2))
 
@@ -133,23 +133,13 @@ class World:
         if(oldwaterlevel!=self.waterlevel):self.needs_refresh=True
 
         self.cam.update(dt)
-
+        
     def draw(self, screen):
         if (self.needs_refresh):
             pygame.surfarray.blit_array(self.surface, self._get_colormap())
             self.needs_refresh=False
 
-        #only scale visible portion, scale it to size of screen
-
-        #get visible portion
-        visible = self.surface.subsurface(pygame.Rect(
-            -self.cam.x / self.cam.zoom,
-            -self.cam.y / self.cam.zoom,
-            screen.get_width() / self.cam.zoom,
-            screen.get_height() / self.cam.zoom,
-        ))
-    
         screen.blit(
-            pygame.transform.scale(visible,screen.get_size()), 
-            ((self.cam.x%self.cam.zoom),(self.cam.y%self.cam.zoom))
+            pygame.transform.scale_by(self.surface,self.cam.zoom), 
+            (self.cam.x,self.cam.y)
         )
