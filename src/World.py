@@ -120,6 +120,18 @@ class World:
         rgb[mask_land, 2] = 0
 
         return rgb
+
+    def get_land_within_radius(self, px, py, radius):
+        h, w = self.heights.shape #height, width
+        Y, X = numpy.ogrid[:h, :w]
+
+        mask = (
+            (X - px)**2 + (Y - py)**2 <= radius * radius
+        ) & (self.heights > self.waterlevel)
+
+        coords = numpy.argwhere(mask) #return all elements where mask is true!
+        return coords
+
     
     def handle_event(self, event):
         self.cam.handle_event(event)

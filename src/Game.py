@@ -30,6 +30,7 @@ class Game:
                 self.done =True
 
             if(event.type==pygame.KEYDOWN): 
+                #fix this NOW
                 if(event.key==pygame.K_UP):
                     self.animals[0].anim_name="up"
                 if(event.key==pygame.K_DOWN):
@@ -43,7 +44,7 @@ class Game:
     def update(self, dt):
         self.world.update(dt)
         for animal in self.animals:
-            animal.update(dt)
+            animal.update(dt, self.world)
         
     def draw(self):
         self.screen.fill(0)

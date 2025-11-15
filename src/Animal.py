@@ -2,14 +2,19 @@ import pygame
 import util
 import random
 from constants import *
+from World import World
 import time
 class Animal:
     img = pygame.image.load(util.path("resources", "banjo.png")).convert_alpha() 
     animations = util.read_json(util.path("resources", "banjo.json"))
 
     def __init__(self,x,y,parents=[]):
+        #this should be in TILES, and 
+        # there should be another set of X and Y that are FLOATS and FOR DRAWING that look nice.
         self.x=x
         self.y=y
+
+
         self.parents = parents
 
         self.color = random.randint(0,360)
@@ -18,7 +23,7 @@ class Animal:
         self.anim_frame = 0
         self.anim_name = "down"
     
-    def update(self, dt):
+    def update(self, dt, world: World):
         self.anim_frame = int(time.time()) % len(Animal.animations[self.anim_name])#len of curanim
     
     def draw(self, screen, cam):
