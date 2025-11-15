@@ -24,7 +24,7 @@ class WorldCamera:
     
     def handle_event(self, event):
         if event.type == pygame.MOUSEWHEEL:
-            self.scrollvel+=event.y/50
+            self.scrollvel+=event.y*(CAM_SCROLL_SPEED_MULT/100)
 
     def update(self, dt):
         mouse_x, mouse_y = pygame.mouse.get_pos()
@@ -75,7 +75,7 @@ class World:
         self.needs_refresh=True
 
         #camera
-        self.cam=  WorldCamera()
+        self.cam=  WorldCamera(zoom=MAP_MIN_SCALE)
 
     def _make_heightmap(self,width,height,seed):
         noisemap= numpy.empty((width,height))
@@ -133,13 +133,37 @@ class World:
         if(oldwaterlevel!=self.waterlevel):self.needs_refresh=True
 
         self.cam.update(dt)
-        
-    def draw(self, screen):
-        if (self.needs_refresh):
-            pygame.surfarray.blit_array(self.surface, self._get_colormap())
-            self.needs_refresh=False
 
-        screen.blit(
-            pygame.transform.scale_by(self.surface,self.cam.zoom), 
-            (self.cam.x,self.cam.y)
+    def draw(self, screen):
+        if self.needs_refresh:
+            pygame.surfarray.blit_array(self.surface, self._get_colormap())
+            self.needs_refresh = False
+
+        screen_w, screen_h = screen.get_size()
+
+        world_x = -self.cam.x / self.cam.zoom
+        world_y = -self.cam.y / self.cam.zoom
+        int_x = int(world_x)
+        int_y = int(world_y)
+
+        view_rect = pygame.Rect(
+            int_x,
+            int_y,
+            int(screen_w / self.cam.zoom) + 2,
+            int(screen_h / self.cam.zoom) + 2
         )
+        
+        clip_rect = view_rect.clip(pygame.Rect(0, 0, self.width, self.height))
+        sub = self.surface.subsurface(clip_rect)
+
+        scaled = pygame.transform.scale(
+            sub, (
+                int(clip_rect.width * self.cam.zoom),
+                int(clip_rect.height * self.cam.zoom)
+            )
+        )
+        
+        screen.blit(scaled, (
+            -(world_x - int_x) * self.cam.zoom,
+            -(world_y - int_y) * self.cam.zoom
+        ))
