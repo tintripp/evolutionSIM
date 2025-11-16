@@ -3,7 +3,7 @@ import util
 import random
 from constants import *
 from World import World
-import time
+
 class Animal:
     img = pygame.image.load(util.path("resources", "banjo.png")).convert_alpha() 
     animations = util.read_json(util.path("resources", "banjo.json"))
@@ -13,6 +13,11 @@ class Animal:
         # there should be another set of X and Y that are FLOATS and FOR DRAWING that look nice.
         self.x=x
         self.y=y
+        self.velx=0
+        self.vely=0
+
+        self.targetx=0
+        self.targety=0
 
 
         self.parents = parents
@@ -24,22 +29,20 @@ class Animal:
         self.anim_name = "down"
     
     def update(self, dt, world: World):
-        self.anim_frame = int(time.time()) % len(Animal.animations[self.anim_name])#len of curanim
-
         #get right anim
-        """
-        if(vector.y):
-            this.animName = (vector.y > 0) ? "down" : "up"
-        elif(vector.x):
-            this.animName = (vector.x > 0) ? "right" : "left"
+        if(self.vely):
+            self.anim_name = "down" if(self.vely > 0) else "up"
+        elif(self.velx):
+            self.anim_name = "right" if(self.velx > 0) else "left"
 
-        //increase frame
-        const magnitude = getMagnitude(this.velocity);
-        if(magnitude > 0.4){
-            this.animFrame += magnitude / 16;
-        }else{
-            this.animFrame = this.animations[this.animName].length - 1; // last
-        }"""
+        
+        #increase frame
+        magnitude = util.get_magnitude((self.velx,self.vely))
+        if(magnitude > 0.4):
+            self.anim_frame += magnitude / 16
+        else:
+            self.anim_frame =-1 # last
+        
 
     """
     def update(animal, dt):

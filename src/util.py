@@ -1,6 +1,7 @@
 import pygame
 from constants import *
 
+import math
 import json
 import os
 
@@ -14,6 +15,9 @@ class Point:
 
 def clamp(value,minmax):
     return min(max(value,minmax[0]),minmax[1])
+
+def get_magnitude(vector):
+    return math.sqrt(sum(component**2 for component in vector))
 
 def hue_shift_img(image,deg):
     # Create a copy of the image to modify

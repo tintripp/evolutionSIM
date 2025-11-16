@@ -28,17 +28,6 @@ class Game:
         for event in pygame.event.get():
             if event.type==pygame.QUIT:
                 self.done =True
-
-            if(event.type==pygame.KEYDOWN): 
-                #fix this NOW
-                if(event.key==pygame.K_w):
-                    self.animals[0].anim_name="up"
-                if(event.key==pygame.K_s):
-                    self.animals[0].anim_name="down"
-                if(event.key==pygame.K_a):
-                    self.animals[0].anim_name="left"
-                if(event.key==pygame.K_d):
-                    self.animals[0].anim_name="right"
             self.world.handle_event(event)
     def update(self, dt):
         self.world.update(dt)
