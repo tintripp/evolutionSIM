@@ -120,6 +120,12 @@ class World:
         rgb[mask_land, 2] = 0
 
         return rgb
+    
+    def set_waterlevel(self, amt):
+        self.waterlevel=amt
+        self.needs_refresh=True
+    def change_waterlevel_by(self, amt):
+        self.set_waterlevel(self.waterlevel+amt)
 
     def get_land_within_radius(self, px, py, radius):
         h, w = self.heights.shape #height, width
@@ -138,11 +144,10 @@ class World:
 
     def update(self, dt):
         #testing
-        oldwaterlevel=self.waterlevel
+        """
         keys = pygame.key.get_pressed()
-        if (keys[pygame.K_w]): self.waterlevel+=1
-        if (keys[pygame.K_s]): self.waterlevel-=1
-        if(oldwaterlevel!=self.waterlevel):self.needs_refresh=True
+        if (keys[pygame.K_w]): self.change_waterlevel_by(1)
+        if (keys[pygame.K_s]): self.change_waterlevel_by(-1)"""
 
         self.cam.update(dt)
 

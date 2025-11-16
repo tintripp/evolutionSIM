@@ -21,7 +21,7 @@ class Game:
         #this looks weird here, but i MUST import AFTER calling set_mode
         from Animal import create_animals
 
-        self.animals = create_animals(self.world, 8, 16)
+        self.animals = create_animals(self.world, 1, 1)
 
 
     def handle_events(self):
@@ -31,15 +31,14 @@ class Game:
 
             if(event.type==pygame.KEYDOWN): 
                 #fix this NOW
-                if(event.key==pygame.K_UP):
+                if(event.key==pygame.K_w):
                     self.animals[0].anim_name="up"
-                if(event.key==pygame.K_DOWN):
+                if(event.key==pygame.K_s):
                     self.animals[0].anim_name="down"
-                if(event.key==pygame.K_LEFT):
+                if(event.key==pygame.K_a):
                     self.animals[0].anim_name="left"
-                if(event.key==pygame.K_RIGHT):
+                if(event.key==pygame.K_d):
                     self.animals[0].anim_name="right"
-                print(self.animals[0].x,self.animals[0].y,self.animals[0].anim_name)
             self.world.handle_event(event)
     def update(self, dt):
         self.world.update(dt)

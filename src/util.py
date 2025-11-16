@@ -4,6 +4,14 @@ from constants import *
 import json
 import os
 
+class Point:
+    def __init__(self, x=0,y=0):
+        self.x=x
+        self.y=y
+    def set(self,x=0,y=0):
+        self.x=x
+        self.y=y
+
 def clamp(value,minmax):
     return min(max(value,minmax[0]),minmax[1])
 
