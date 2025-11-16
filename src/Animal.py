@@ -1,4 +1,5 @@
 import pygame
+import numpy
 import util
 import random
 from constants import *
@@ -8,27 +9,33 @@ class Animal:
     img = pygame.image.load(util.path("resources", "banjo.png")).convert_alpha() 
     animations = util.read_json(util.path("resources", "banjo.json"))
 
-    def __init__(self,x,y,parents=[]):
+    def __init__(self,world,x,y,parents=[]):
         #this should be in TILES, and 
         # there should be another set of X and Y that are FLOATS and FOR DRAWING that look nice.
-        self.x=x
-        self.y=y
+        self.world = world
+
+        self.targetx=x
+        self.targety=y
+        self.x=self.targetx
+        self.y=self.targety
         self.velx=0
         self.vely=0
 
-        self.targetx=0
-        self.targety=0
+        self.sightradius=10
+        
+        self.pick_new_target(world)
 
 
         self.parents = parents
 
         self.color = random.randint(0,360)
         self.img = util.hue_shift_img(Animal.img, self.color)
+        self.rect=None
 
         self.anim_frame = -1
         self.anim_name = "down"
-    
-    def update(self, dt, world: World):
+
+    def _update_anims(self):
         #get right anim
         if(self.vely):
             self.anim_name = "down" if(self.vely > 0) else "up"
@@ -39,34 +46,42 @@ class Animal:
         #increase frame
         magnitude = util.get_magnitude((self.velx,self.vely))
         if(magnitude > 0.4):
-            self.anim_frame += magnitude / 16
+            self.anim_frame += magnitude / 1000
         else:
             self.anim_frame =-1 # last
+
+    def pick_new_target(self, world: World):
+        targets =world.get_land_within_radius(self.targetx,self.targety ,self.sightradius)
+        if(targets.shape[0]==0): 
+            print('dude i cant move! len of targets:', len(targets))
+            return #could not find a tile to move to, so don't.
         
+        self.targetx,self.targety= targets[numpy.random.randint(0, targets.shape[0])]
 
-    """
-    def update(animal, dt):
-        # animal.tx, animal.ty = tile target
-        # animal.x,  animal.y  = current float position
+    def update(self, dt, world):
+        
+        speed = 0.04  # tiles per second
 
-        speed = 5.0  # tiles per second
-
-        dx = animal.tx - animal.x
-        dy = animal.ty - animal.y
+        self.velx = self.targetx - self.x
+        self.vely = self.targety - self.y
 
         # Move toward target tile
-        animal.x += dx * dt * speed
-        animal.y += dy * dt * speed
+        dt =min(dt, 0.05)  
+        self.x += self.velx * dt * speed
+        self.y += self.vely * dt * speed
 
         # Reached tile?
-        if abs(dx) < 0.05 and abs(dy) < 0.05:
-            animal.x = animal.tx
-            animal.y = animal.ty
-            pick_new_target(animal, world)
-    """
+        if abs(self.velx) < 0.05 and abs(self.vely) < 0.05:
+            self.x = self.targetx
+            self.y = self.targety
+            self.pick_new_target(world)
+        
+
+        self._update_anims()
 
     def draw(self, screen, cam):
-        anim = Animal.animations[self.anim_name][self.anim_frame]
+        anim_frames= Animal.animations[self.anim_name]
+        anim = anim_frames[int(self.anim_frame)%len(anim_frames)]
         offset = [
             anim["xOff"] if "xOff" in anim else 0,
             anim["yOff"] if "yOff" in anim else 0
@@ -75,12 +90,13 @@ class Animal:
         scaled = pygame.transform.scale_by(self.img.subsurface(
             pygame.Rect(anim["x"],anim["y"],anim["w"],anim["h"])
         ),cam.zoom/MAP_MAX_SCALE)
+        self.rect=scaled.get_frect(
+            centerx=((self.x+(offset[0]//cam.zoom))*cam.zoom)+cam.x,
+            bottom=((self.y+(offset[1]//cam.zoom))*cam.zoom)+cam.y
+        )
 
         screen.blit(scaled, 
-            dest=scaled.get_frect(
-                centerx=((self.x+offset[0])/MAP_MAX_SCALE*cam.zoom)+cam.x,
-                bottom=((self.y+offset[1])/MAP_MAX_SCALE*cam.zoom)+cam.y
-            )
+            dest=self.rect
         )
 
 
@@ -94,7 +110,8 @@ def create_animals(world,min,max):
         spawn_area = spawn_areas[random.randint(min,len(spawn_areas)-1)]
         animals.append(
             Animal(
-                spawn_area[0]*MAP_MAX_SCALE, spawn_area[1]*MAP_MAX_SCALE
+                world, 
+                spawn_area[0], spawn_area[1]
             )
         )
     return animals

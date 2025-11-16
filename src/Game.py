@@ -22,7 +22,10 @@ class Game:
         from Animal import create_animals
 
         self.animals = create_animals(self.world, 1, 1)
+        
 
+        #DEBUG
+        self.hoveranimal=None
 
     def handle_events(self):
         for event in pygame.event.get():
